@@ -3,6 +3,7 @@ from decimal import Decimal
 from typing import List, Optional
 
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import SQLModel, Field, Session, create_engine, select
 
 from app.calc import monthly_payment as calc_monthly_payment
@@ -63,6 +64,15 @@ class LoanDetail(LoanRead):
 
 app = FastAPI()
 
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 @app.on_event("startup")
 def on_startup():
@@ -117,7 +127,7 @@ def generate_schedule_preview(amount: Decimal, apr: Decimal, term_months: int) -
 
 # --- Endpoints ---
 
-@app.post("/loans", response_model=LoanRead)
+@app.post("/loans", response_model=LoanDetail)
 def create_loan(loan: LoanCreate, session: Session = Depends(get_session)):
 	# Compute monthly payment using Decimal for accuracy
 	mp = compute_monthly_payment(loan.amount, loan.apr, loan.term_months)
@@ -131,12 +141,17 @@ def create_loan(loan: LoanCreate, session: Session = Depends(get_session)):
 	session.add(record)
 	session.commit()
 	session.refresh(record)
-	return LoanRead(
+
+	# Generate schedule preview
+	schedule = generate_schedule_preview(loan.amount, loan.apr, loan.term_months)
+
+	return LoanDetail(
 		id=record.id,
 		amount=record.amount,
 		apr=record.apr,
 		term_months=record.term_months,
 		monthly_payment=record.monthly_payment,
+		schedule_preview=schedule,
 	)
 
 
