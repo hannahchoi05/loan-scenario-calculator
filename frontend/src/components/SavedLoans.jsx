@@ -7,6 +7,7 @@ export function SavedLoans() {
   const [error, setError] = useState(null);
   const [selectedLoan, setSelectedLoan] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   const fetchLoans = async () => {
     setLoading(true);
@@ -38,6 +39,29 @@ export function SavedLoans() {
   const closeModal = () => {
     setModalOpen(false);
     setSelectedLoan(null);
+  };
+
+  const handleDeleteLoan = async (loanId) => {
+    setDeleteConfirmId(loanId);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteConfirmId) return;
+    try {
+      const response = await fetch(`http://localhost:8000/loans/${deleteConfirmId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) throw new Error('Failed to delete loan');
+      setDeleteConfirmId(null);
+      fetchLoans();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error');
+      setDeleteConfirmId(null);
+    }
+  };
+
+  const cancelDelete = () => {
+    setDeleteConfirmId(null);
   };
 
   useEffect(() => {
@@ -92,8 +116,9 @@ export function SavedLoans() {
               <td>{loan.apr.toFixed(2)}%</td>
               <td>{loan.term_months}</td>
               <td>${loan.monthly_payment.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
-              <td>
+              <td className="action-buttons">
                 <button className="view-btn" onClick={() => handleViewLoan(loan.id)}>View</button>
+                <button className="delete-btn" onClick={() => handleDeleteLoan(loan.id)} aria-label="Delete">×</button>
               </td>
             </tr>
           ))}
@@ -115,6 +140,20 @@ export function SavedLoans() {
               monthlyPayment={selectedLoan.monthly_payment} 
               schedulePreview={selectedLoan.schedule_preview || []} 
             />
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteConfirmId && (
+        <div className="modal-overlay" onClick={cancelDelete}>
+          <div className="confirm-modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Delete Loan Scenario?</h3>
+            <p>Are you sure you want to delete this loan scenario? This action cannot be undone.</p>
+            <div className="confirm-actions">
+              <button className="btn-cancel" onClick={cancelDelete}>Cancel</button>
+              <button className="btn-confirm-delete" onClick={confirmDelete}>Delete</button>
+            </div>
           </div>
         </div>
       )}

@@ -193,3 +193,12 @@ def get_loan(loan_id: int, session: Session = Depends(get_session)):
 		schedule_preview=schedule,
 	)
 
+
+@app.delete("/loans/{loan_id}")
+def delete_loan(loan_id: int, session: Session = Depends(get_session)):
+	record = session.get(LoanScenario, loan_id)
+	if not record:
+		raise HTTPException(status_code=404, detail="Loan not found")
+	session.delete(record)
+	session.commit()
+	return {"message": "Loan deleted successfully"}

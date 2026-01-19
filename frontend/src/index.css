@@ -365,63 +365,32 @@ body {
   background: #2c5f8d;
 }
 
-/* Footer */
-.app-footer {
-  background: white;
-  border-top: 1px solid #e2e8f0;
-  margin-top: auto;
-}
-
-.footer-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem;
+.action-buttons {
   display: flex;
+  gap: 0.5rem;
   justify-content: space-between;
   align-items: center;
 }
 
-.footer-brand {
+.delete-btn {
+  background: white;
+  color: black;
+  border: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.2s;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  line-height: 1;
 }
 
-.footer-logo {
-  width: 32px;
-  height: 32px;
-}
-
-.footer-brand-text {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #2d3748;
-}
-
-.footer-brand-subtitle {
-  font-size: 0.8rem;
-  color: #718096;
-}
-
-.footer-links {
-  display: flex;
-  gap: 2rem;
-}
-
-.footer-link {
-  color: #4a5568;
-  text-decoration: none;
-  font-size: 0.95rem;
-  transition: color 0.2s;
-}
-
-.footer-link:hover {
-  color: #3a7ab8;
-}
-
-.footer-social {
-  display: flex;
-  gap: 1rem;
+.delete-btn:hover {
+  background: #e2e8f0;
 }
 
 .social-icon {
@@ -538,4 +507,73 @@ body {
 .modal-content .card {
   box-shadow: none;
   border-radius: 0;
+}
+
+/* Delete Confirmation Modal */
+.confirm-modal {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+}
+
+.confirm-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.confirm-modal h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 0.75rem;
+}
+
+.confirm-modal p {
+  color: #718096;
+  font-size: 0.95rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.btn-cancel {
+  padding: 0.75rem 1.5rem;
+  border: 1px solid #cbd5e0;
+  background: white;
+  color: #4a5568;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+  background: #f7fafc;
+  border-color: #a0aec0;
+}
+
+.btn-confirm-delete {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  background: #e53e3e;
+  color: white;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background-color 0.2s;
+}
+
+.btn-confirm-delete:hover {
+  background: #c53030;
 }
