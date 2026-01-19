@@ -34,12 +34,15 @@ def test_create_loan_returns_monthly_payment(client):
     resp = client.post("/loans", json=payload)
     assert resp.status_code == 200
     data = resp.json()
-    assert set(data.keys()) == {"id", "amount", "apr", "term_months", "monthly_payment"}
+    assert set(data.keys()) == {"id", "amount", "apr", "term_months", "monthly_payment", "schedule_preview"}
     assert data["amount"] == 250000
     assert data["apr"] == 5.5
     assert data["term_months"] == 360
     # Verify monthly payment amount
     assert data["monthly_payment"] == 1419.47
+    # Verify schedule preview is included
+    assert isinstance(data["schedule_preview"], list)
+    assert len(data["schedule_preview"]) == 12
 
 
 def test_list_loans_orders_by_most_recent(client):

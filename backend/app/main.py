@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 from decimal import Decimal
 from typing import List, Optional
@@ -11,7 +12,7 @@ from app.calc import monthly_payment as calc_monthly_payment
 
 # --- Database setup ---
 
-DATABASE_URL = "sqlite:///./loans.db"  # simple local persistence for development/tests
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/loans")
 engine = create_engine(DATABASE_URL, echo=False)
 
 
@@ -126,6 +127,22 @@ def generate_schedule_preview(amount: Decimal, apr: Decimal, term_months: int) -
 
 
 # --- Endpoints ---
+
+@app.post("/loans/calculate", response_model=LoanDetail)
+def calculate_loan(loan: LoanCreate):
+	"""Calculate loan payment without saving to database"""
+	mp = compute_monthly_payment(loan.amount, loan.apr, loan.term_months)
+	schedule = generate_schedule_preview(loan.amount, loan.apr, loan.term_months)
+	
+	return LoanDetail(
+		id=0,  # Not saved yet
+		amount=float(loan.amount),
+		apr=float(loan.apr),
+		term_months=loan.term_months,
+		monthly_payment=float(mp),
+		schedule_preview=schedule,
+	)
+
 
 @app.post("/loans", response_model=LoanDetail)
 def create_loan(loan: LoanCreate, session: Session = Depends(get_session)):

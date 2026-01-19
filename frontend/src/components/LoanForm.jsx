@@ -9,6 +9,8 @@ export function LoanForm() {
   const [schedulePreview, setSchedulePreview] = useState([]);
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+  const [calculated, setCalculated] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   const validate = () => {
     const newErrors = {};
@@ -38,14 +40,16 @@ export function LoanForm() {
     if (!validate()) {
       setMonthlyPayment(null);
       setSchedulePreview([]);
+      setCalculated(false);
       return;
     }
 
     setLoading(true);
     setErrors({});
+    setSaved(false);
 
     try {
-      const response = await fetch('http://localhost:8000/loans', {
+      const response = await fetch('http://localhost:8000/loans/calculate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -65,15 +69,48 @@ export function LoanForm() {
       const data = await response.json();
       setMonthlyPayment(data.monthly_payment);
       setSchedulePreview(data.schedule_preview || []);
-
-      // Dispatch event to refresh saved loans list
-      window.dispatchEvent(new Event('loanCreated'));
+      setCalculated(true);
     } catch (err) {
       setErrors({
         server: err instanceof Error ? err.message : 'Unknown error',
       });
       setMonthlyPayment(null);
       setSchedulePreview([]);
+      setCalculated(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSave = async () => {
+    setLoading(true);
+    setErrors({});
+
+    try {
+      const response = await fetch('http://localhost:8000/loans', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount: parseFloat(amount),
+          apr: parseFloat(apr),
+          term_months: parseInt(term),
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.detail || 'Failed to save loan');
+      }
+
+      setSaved(true);
+      // Dispatch event to refresh saved loans list
+      window.dispatchEvent(new Event('loanCreated'));
+    } catch (err) {
+      setErrors({
+        server: err instanceof Error ? err.message : 'Unknown error',
+      });
     } finally {
       setLoading(false);
     }
@@ -96,7 +133,7 @@ export function LoanForm() {
                 type="number"
                 id="amount"
                 value={amount}
-                onChange={(e) => setAmount(e.target.value)}
+                onChange={(e) => { setAmount(e.target.value); setCalculated(false); setSaved(false); }}
                 disabled={loading}
                 className="form-input"
                 placeholder="250,000"
@@ -115,7 +152,7 @@ export function LoanForm() {
                 type="number"
                 id="apr"
                 value={apr}
-                onChange={(e) => setApr(e.target.value)}
+                onChange={(e) => { setApr(e.target.value); setCalculated(false); setSaved(false); }}
                 disabled={loading}
                 className="form-input"
                 placeholder="5.5"
@@ -134,7 +171,7 @@ export function LoanForm() {
               type="number"
               id="term"
               value={term}
-              onChange={(e) => setTerm(e.target.value)}
+              onChange={(e) => { setTerm(e.target.value); setCalculated(false); setSaved(false); }}
               disabled={loading}
               className="form-input"
               placeholder="360"
@@ -143,13 +180,34 @@ export function LoanForm() {
             {errors.term && <p className="error-message">{errors.term}</p>}
           </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="btn btn-primary"
-          >
-            {loading ? 'Calculating...' : 'Calculate & Save'}
-          </button>
+          {errors.server && (
+            <p className="error-message">{errors.server}</p>
+          )}
+
+          <div className="button-group">
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn btn-primary"
+            >
+              {loading ? 'Calculating...' : 'Calculate'}
+            </button>
+
+            {calculated && !saved && (
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={loading}
+                className="btn btn-success"
+              >
+                {loading ? 'Saving...' : 'Save'}
+              </button>
+            )}
+
+            {saved && (
+              <span className="save-success">✓ Saved!</span>
+            )}
+          </div>
         </form>
       </div>
 

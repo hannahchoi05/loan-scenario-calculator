@@ -177,6 +177,16 @@ body {
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+}
+
+.button-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: stretch;
+}
+
+.button-group .btn {
   width: 100%;
 }
 
@@ -192,6 +202,26 @@ body {
 .btn-primary:disabled {
   background: #a0c4e0;
   cursor: not-allowed;
+}
+
+.btn-success {
+  background: #48bb78;
+  color: white;
+}
+
+.btn-success:hover {
+  background: #38a169;
+}
+
+.btn-success:disabled {
+  background: #9ae6b4;
+  cursor: not-allowed;
+}
+
+.save-success {
+  color: #38a169;
+  font-weight: 600;
+  font-size: 0.95rem;
 }
 
 /* Error Messages */
