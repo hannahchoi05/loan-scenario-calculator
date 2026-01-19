@@ -19,7 +19,7 @@ This Loan Scenario Calculator allows users to:
 - Framework: **FastAPI**
 - Database: **PostgreSQL**
 - Persistence: **SQLModel**
-- Server: **Uvicorn**
+- Web Server: **Uvicorn**
 
 ### Frontend
 - UI library: **React 19**
@@ -35,13 +35,9 @@ This Loan Scenario Calculator allows users to:
 - Node.js 20+
 - Docker (optional)
 
-### Option 1: Docker (Recommended)
+### Option 1: Docker
 
 ```bash
-# Clone the repository
-git clone <repository-url>
-cd loan-scenario-calculator
-
 # Build and run with Docker Compose
 docker compose up
 ```
